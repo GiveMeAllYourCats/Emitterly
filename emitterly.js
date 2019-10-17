@@ -6,13 +6,14 @@ const yaml = require('js-yaml')
 const axios = require('axios')
 const fs = require('fs')
 const debug = {
-  log: require('debug')('log-event-trigger:log'),
-  warn: require('debug')('log-event-trigger:warn')
+  log: require('debug')('emitterly:log'),
+  warn: require('debug')('emitterly:warn')
 }
 
 class Emitterly {
   constructor(file = './settings.yml') {
     // Load the settings
+    debug.log('Settings found', file)
     this.settings = yaml.safeLoad(fs.readFileSync(file, 'utf8'))
     debug.log('Settings loaded -', _.size(this.settings.events), 'events')
     if (_.size(this.settings.events) == 0) {
@@ -21,16 +22,28 @@ class Emitterly {
     }
 
     // Begin watching files
+    this.tails = []
     _.each(this.settings.events, (event, key) => {
       debug.log('Tailing file', event.file, 'for event', key)
-      new Tail(event.file).on('line', line => {
-        this.tailLine(line, event.file)
-      })
+      this.tails.push(
+        new Tail(event.file).on('line', line => {
+          this.tailLine(line, event.file)
+        })
+      )
     })
   }
 
   // Quit the program
   quit() {
+    debug.log('Request quit..')
+
+    // Make sure to unwatch all tail files
+    _.each(this.tails, tail => {
+      debug.log('Unwatch file:', tail.filename)
+      tail.unwatch()
+    })
+
+    debug.log('Goodbye!')
     process.exit()
   }
 
@@ -75,12 +88,14 @@ class Emitterly {
   // The tail module reported a new found line on a watched file
   tailLine(line, file) {
     debug.log(path.basename(file), line)
+    this.lastline = line
 
     // Find events with this file path
     _.each(this.settings.events, (event, key) => {
       if (event.file == file) {
         // Formulate match object for event object with grok matching filters
         event.match = this.grok(event.filters, line)
+        this.lastmatch = event.match
 
         // Ignore if no matches
         if (Object.keys(event.match).length === 0) {
@@ -91,11 +106,9 @@ class Emitterly {
         event.event = key
 
         // Evaluate the events condition
-        let condition
+        let condition = true
         if (event.condition) {
           condition = this.contextVars(event.condition, event)
-        } else {
-          condition = true
         }
 
         try {
@@ -104,6 +117,8 @@ class Emitterly {
           debug.warn(`Failed to evaluate condition in event ${key}`)
           throw new Error(`event: ${key} condtion: ${condition} ${error}`)
         }
+
+        debug.log(`event condition returned true: (${condition}) == true`)
 
         if (!eval(condition)) {
           return debug.warn('event condition returned false, ignoring actions')
@@ -115,6 +130,7 @@ class Emitterly {
         })
 
         debug.log('Payload set to', event.payload)
+        this.lastpayload = event.payload
 
         // Check what actions to take
         _.each(event.actions, (data, type) => {
@@ -122,6 +138,7 @@ class Emitterly {
 
           // Webhook action
           if (type == 'webhook') {
+            debug.log('HTTP post:', data, event.payload)
             axios
               .post(data, event.payload)
               .then(res => {

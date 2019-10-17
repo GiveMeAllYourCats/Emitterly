@@ -2,9 +2,11 @@
   "name": "emitterly",
   "version": "1.0.3",
   "description": "Create triggers from file streams",
-  "main": "entry.js",
+  "main": "emitterly.js",
   "scripts": {
-    "test": "npx nyc mocha tests/mocha/**/*.js --slow 1 && nyc report --reporter=html"
+    "benchmark": "node tests/benchmark/benchmark.js",
+    "test": "npx nyc mocha tests/mocha/**/*.js --slow 1 && nyc report --reporter=html",
+    "coverage": "npx nyc check-coverage"
   },
   "keywords": [
     "log",
@@ -21,15 +23,17 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm test",
-      "pre-push": "npx nyc check-coverage"
+      "pre-commit": "npm test"
     }
   },
   "nyc": {
     "branches": 5,
     "lines": 5,
     "functions": 5,
-    "statements": 5
+    "statements": 5,
+    "exclude": [
+      "tests/mocha"
+    ]
   },
   "author": {
     "name": "GiveMeAllYourCats",
@@ -53,15 +57,13 @@
   "devDependencies": {
     "benchmark": "^2.1.4",
     "coveralls": "^3.0.3",
-    "draw-candlestick": "^2.0.3",
     "husky": "^2.2.0",
     "jsdoc": "^3.6.1",
     "mocha": "^6.1.4",
     "mocha-lcov-reporter": "^1.3.0",
     "mocha-logger": "^1.0.6",
     "moment": "^2.24.0",
-    "nyc": "^14.1.0",
-    "tui-jsdoc-template": "^1.2.2"
+    "nyc": "^14.1.0"
   },
   "repository": {
     "type": "git",
