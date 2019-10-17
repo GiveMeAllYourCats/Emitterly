@@ -1,6 +1,6 @@
 {
   "name": "emitterly",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Create triggers from file streams",
   "main": "emitterly.js",
   "scripts": {
