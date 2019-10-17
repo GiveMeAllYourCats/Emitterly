@@ -1,0 +1,32 @@
+{
+  "name": "emitterly",
+  "version": "1.0.0",
+  "description": "Create triggers from file streams",
+  "main": "entry.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "log",
+    "event",
+    "trigger",
+    "stream",
+    "tail",
+    "watch",
+    "action"
+  ],
+  "author": "Ashley de Groot <specamps@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "debug": "^4.1.1",
+    "grok-js": "^3.2.3",
+    "js-yaml": "^3.13.1",
+    "lodash": "^4.17.15",
+    "tail": "^2.0.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/npm/cli.git"
+  }
+}
