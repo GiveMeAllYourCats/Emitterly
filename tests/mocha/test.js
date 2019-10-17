@@ -40,9 +40,7 @@ describe('Emitterly', function() {
       fs.unlinkSync(path.join(__dirname, 'test.txt'))
     } catch (e) {}
 
-    setTimeout(() => {
-      emitterly.quit()
-    }, 100)
+    emitterly.quit()
   })
 
   it('Load the Emitterly class', () => {
