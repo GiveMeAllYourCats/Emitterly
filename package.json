@@ -1,6 +1,6 @@
 {
   "name": "emitterly",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Create triggers from file streams",
   "main": "entry.js",
   "scripts": {
@@ -16,7 +16,7 @@
     "action"
   ],
   "bugs": {
-    "url": "https://github.com/owner/project/issues",
+    "url": "https://github.com/michaeldegroot/Emitterly/issues",
     "email": "specamps@gmail.com"
   },
   "husky": {
@@ -65,6 +65,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/npm/cli.git"
+    "url": "https://github.com/michaeldegroot/Emitterly.git"
   }
 }
