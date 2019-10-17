@@ -35,7 +35,7 @@ events:
     # There can be multiple filters
     filters:
       # this filter called filter1 will match: [12:08:44] 192.168.2.1 (INFO) - User logged in
-      filter1: '\\[%{TIME:time}\\] %{IP:ip} \\(%{WORD:type}\\) - %{GREEDYDATA:message}'
+      filter1: '\[%{TIME:time}\] %{IP:ip} \(%{WORD:type}\) - %{GREEDYDATA:message}'
 
     # There can be multiple actions
     actions:
