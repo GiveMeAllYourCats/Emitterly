@@ -50,3 +50,15 @@ events:
     payload:
       data: '%match.ip% %event% %condition% customstring'
 ```
+
+##### Start Emitterly to listen
+
+```bash
+emitterly --config "/path/to/your/settings.yml"
+```
+
+That's it your all done! Emitterly will listen for file changes and trigger your actions
+
+# Filters
+
+Emitterly uses grok filters to extract key value pairs from a line event
