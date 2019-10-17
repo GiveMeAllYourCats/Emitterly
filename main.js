@@ -10,14 +10,14 @@ const debug = {
   warn: require('debug')('log-event-trigger:warn')
 }
 
-class Main {
-  constructor() {
+class Emitterly {
+  constructor(file = './settings.yml') {
     // Load the settings
-    this.settings = yaml.safeLoad(fs.readFileSync('./settings.yml', 'utf8'))
+    this.settings = yaml.safeLoad(fs.readFileSync(file, 'utf8'))
     debug.log('Settings loaded -', _.size(this.settings.events), 'events')
     if (_.size(this.settings.events) == 0) {
       debug.warn('no events found, closing program')
-      process.exit()
+      this.quit()
     }
 
     // Begin watching files
@@ -27,6 +27,11 @@ class Main {
         this.tailLine(line, event.file)
       })
     })
+  }
+
+  // Quit the program
+  quit() {
+    process.exit()
   }
 
   // Translates a line of a watched file to a parsed object via supplied grok filters
@@ -132,5 +137,4 @@ class Main {
   }
 }
 
-const main = new Main()
-main.tailLine('[12:08:44] 192.168.2.1 (INFO) - User logged in', 'D:\\discordcraft\\log-event-trigger\\testlog.txt')
+module.exports = Emitterly

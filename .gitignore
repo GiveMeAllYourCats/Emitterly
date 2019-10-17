@@ -123,7 +123,7 @@ nbproject
 .vscode
 .node_history
 dump.rdb
-
+.nyc_output
 npm-debug.log
 lib-cov
 *.seed
