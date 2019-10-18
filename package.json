@@ -1,12 +1,13 @@
 {
   "name": "emitterly",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Create triggers from file streams",
   "main": "emitterly.js",
   "scripts": {
     "benchmark": "node tests/benchmark/benchmark.js",
     "test": "npx nyc mocha tests/mocha/**/*.js --slow 1 && nyc report --reporter=html",
-    "coverage": "npx nyc check-coverage"
+    "coverage": "npx nyc check-coverage",
+    "coveralls:export": "nyc report --reporter=text-lcov | coveralls"
   },
   "bin": {
     "emitterly": "./bin/index.js"
