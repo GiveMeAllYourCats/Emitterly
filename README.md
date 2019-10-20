@@ -57,7 +57,7 @@ events:
 
     # The payload to send with the actions
     payload:
-      ip: '%match.ip'
+      ip: '%ip%'
       data: 'Emitterly sent a payload! event: %event% condition = %condition% here is a customstring'
 ```
 
