@@ -1,40 +1,47 @@
-[![Emitterly Logo](https://i.imgur.com/q2fUNnM.png)](https://github.com/michaeldegroot/Emitterly)
+<p align="center"><img src="https://i.imgur.com/q2fUNnM.png" /></p>
 
+# Emitterly
+
+[![HitCount](http://hits.dwyl.io/michaeldegroot/emitterly.svg)](http://hits.dwyl.io/michaeldegroot/emitterly)
 [![Package quality](https://packagequality.com/shield/emitterly.svg)](https://packagequality.com/#?package=emitterly)
-[![NPM Version](https://img.shields.io/npm/v/emitterly.svg)](https://www.npmjs.com/package/emitterly)
 [![Build Status](https://travis-ci.org/michaeldegroot/Emitterly.png?branch=master)](https://travis-ci.org/michaeldegroot/Emitterly)
 [![Coverage Status](https://coveralls.io/repos/github/michaeldegroot/Emitterly/badge.svg?branch=master)](https://coveralls.io/github/michaeldegroot/Emitterly?branch=master)
 [![Licensing](https://img.shields.io/github/license/michaeldegroot/emitterly.svg)](https://raw.githubusercontent.com/michaeldegroot/Emitterly/master/LICENSE)
-[![Commit Activity](https://img.shields.io/github/commit-activity/m/michaeldegroot/Emitterly.svg)](https://github.com/michaeldegroot/Emitterly/pulse/monthly)
-[![Last Commit](https://img.shields.io/github/last-commit/michaeldegroot/Emitterly.svg)](https://github.com/michaeldegroot/MonkeySet/commits/master)
 [![Repo size](https://img.shields.io/github/repo-size/michaeldegroot/emitterly.svg)](https://github.com/michaeldegroot/Emitterly)
 [![Downloads per week](https://img.shields.io/npm/dw/emitterly.svg)](https://www.npmjs.com/package/emitterly)
 [![Node version](https://img.shields.io/node/v/emitterly.svg)](https://www.npmjs.com/package/emitterly)
-[![Top language of repo](https://img.shields.io/github/languages/top/badges/shields.svg)](https://github.com/michaeldegroot/Emitterly)
 [![Help us and star this project](https://img.shields.io/github/stars/michaeldegroot/emitterly.svg?style=social)](https://github.com/michaeldegroot/Emitterly)
 
-# Getting Started
+A CLI program to listen to file changes in the filesystem and/or internet and execute certain defined actions on a triggered condition<br>
+```Emitterly``` Uses grok filters to extract key/pair values from new line events to make your payloads more intelligent. This is explained in detail below.
 
-##### Start by installing Emitterly globally
+## Installation
 
 ```bash
 npm install emitterly --global
 ```
 
-##### Emitterly works with YAML files to load your prefered settings, start by creating a settings file
+## Usage
 
+Type ```emitterly``` or ```emitterly -c "path/to/settings.yml"``` to run the tool.
+
+```Emitterly``` will try to load a ```settings.yml``` file in the folder you executed the command in
+
+#### Command-Line Arguments
+
+| Argument | Explanation |
+| -------- | ----------- |
+| ```-c``` | Specifies the file path to the settings.yml |
+
+#### Settings
 ```yaml
 events:
-  # This is a event name
-  # It has a file that it watches and grok patterns that
-  # Will match the last line that has been observed
-  newlineevent:
-    # The file to watch
-    file: './test.txt'
-
-    # There can be multiple filters
-    filters:
-      # this filter called filter1 will match: [12:08:44] 192.168.2.1 (INFO) - User logged in
+  newlineevent: # This is a event name, you can have multiple events
+    file: './test.txt' # The file to watch, you can also use URL's
+    
+    # You can have multiple filters
+    filters: # Filters are GROK patterns 
+      # this filter called filter1 will match for example: [12:08:44] 192.168.2.1 (INFO) - User logged in
       filter1: '\[%{TIME:time}\] %{IP:ip} \(%{WORD:type}\) - %{GREEDYDATA:message}'
 
     # There can be multiple actions
@@ -48,17 +55,43 @@ events:
 
     # The payload to send with the actions
     payload:
-      data: '%match.ip% %event% %condition% customstring'
+      ip: '%match.ip'
+      data: 'Emitterly sent a payload! event: %event% condition = %condition% here is a customstring'
 ```
 
-##### Start Emitterly to listen
+#### Grok
+[grok](https://github.com/elastic/logstash/blob/v1.4.2/patterns/grok-patterns) is a way to match a line against a regular expression and map specific parts of the line into dedicated fields. 
 
-```bash
-emitterly --config "/path/to/your/settings.yml"
+For example consider the following new added line to a file that you are monitoring with ```Emitterly```:
+```
+[12:08:44] 192.168.2.1 (INFO) - User logged in
 ```
 
-That's it your all done! Emitterly will listen for file changes and trigger your actions
+You could transform this information to a payload object within ```Emitterly``` by specifying a grok match pattern in your ```settings.yml``` file inside the filters of a event:
+```yaml
+    filters:
+      filter1: '\[%{TIME:time}\] %{IP:ip} \(%{WORD:type}\) - %{GREEDYDATA:message}'
+```
 
-# Filters
+Which will result in the following object:
 
-Emitterly uses grok filters to extract key value pairs from a line event
+```js
+{
+    time: '12:08:44',
+    ip: '192.168.2.1',
+    type: 'INFO',
+    message: 'User logged in'
+}
+```
+
+You can then use this to send as a payload or to use it in your condition line in ```settings.yml```
+```yaml 
+    condition: '"%match.ip%" == "192.168.2.1"'
+```
+
+So now your payload will only be sent to your action if this condition matches
+
+## License
+
+Copyright (c) 2019 by [GiveMeAllYourCats](https://github.com/michaeldegroot). Some rights reserved.<br>
+[Evil Limiter](https://github.com/michaeldegroot/emitterly) is licensed under the MIT License as stated in the [LICENSE file](https://github.com/michaeldegroot/Emitterly/blob/master/LICENSE).
