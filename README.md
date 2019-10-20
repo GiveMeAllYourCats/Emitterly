@@ -27,6 +27,8 @@ Type ```emitterly``` or ```emitterly -c "path/to/settings.yml"``` to run the too
 
 ```Emitterly``` will try to load a ```settings.yml``` file in the folder you executed the command in
 
+You can run ```emitterly``` with ```DEBUG=emitterly:* emitterly``` to view debug messages
+
 #### Command-Line Arguments
 
 | Argument | Explanation |
