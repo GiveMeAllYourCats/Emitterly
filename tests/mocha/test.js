@@ -2,78 +2,129 @@ const assert = require('assert')
 const fs = require('fs')
 const path = require('path')
 const Emitterly = require('../../emitterly')
-
-const configFile = `events:
-  newlineevent:
-    file: '${path.join(__dirname, 'test.txt')}'
-    filters:
-      # will match: [12:08:44] 192.168.2.1 (INFO) - User logged in
-      filter1: '\\[%{TIME:time}\\] %{IP:ip} \\(%{WORD:type}\\) - %{GREEDYDATA:message}'
-    actions:
-      webhook: 'https://webhook.site/04ed7a87-f9e5-472d-8f66-fc50f83b0a67'
-    condition: '1 === 1'
-    payload:
-      data: '%match.ip% %event% %condition% customstring'
-`
+const touch = require('touch')
+const yaml = require('js-yaml')
+const _ = require('lodash')
 
 let emitterly
+const defaultSettings = {
+  events: {
+    newlineevent: {
+      file: path.join(__dirname, 'text.txt'),
+      filters: {
+        filter1: `\\[%{TIME:time}\\] %{IP:ip} \\(%{WORD:type}\\) - %{GREEDYDATA:message}`
+      },
+      actions: {
+        webhook: 'https://webhook.site/04ed7a87-f9e5-472d-8f66-fc50f83b0a67'
+      },
+      condition: '1 === 1',
+      payload: {
+        data: '%match.ip% %event% %condition% customstring %encapsulated% %yeet yeet%'
+      }
+    }
+  }
+}
 
 describe('Emitterly', function() {
-  before(function(done) {
-    try {
-      fs.unlinkSync(path.join(__dirname, 'settings.yml'))
-      fs.unlinkSync(path.join(__dirname, 'test.txt'))
-    } catch (e) {}
-    fs.writeFile(path.join(__dirname, 'settings.yml'), configFile, function(err) {
-      if (err) throw err
+  before(() => {
+    touch.sync(path.join(__dirname, 'text.txt'))
+    touch.sync(path.join(__dirname, 'settings.yml'))
+    fs.writeFileSync(path.join(__dirname, 'settings.yml'), yaml.safeDump(defaultSettings))
+  })
+  after(() => {
+    fs.unlinkSync(path.join(__dirname, 'text.txt'))
+    fs.unlinkSync(path.join(__dirname, 'settings.yml'))
+  })
 
-      fs.writeFile(path.join(__dirname, 'test.txt'), '', function(err) {
-        if (err) throw err
-        done()
-      })
+  it('Action should never trigger due to faulty condition', async () => {
+    const newSettings = defaultSettings
+    newSettings.events.newlineevent.condition = `1 === 0`
+    emitterly = await new Emitterly(null, newSettings)
+    await emitterly.tailLine('[12:08:44] 192.168.2.1 (INFO) - User logged in', path.join(__dirname, 'text.txt'))
+    emitterly.stop()
+    // TODO: verify
+  })
+
+  it('Trigger new line event in file, 1 matched grok filter', async () => {
+    emitterly = await new Emitterly(null, defaultSettings)
+    await emitterly.tailLine('[12:08:44] 192.168.2.1 (INFO) - User logged in', path.join(__dirname, 'text.txt'))
+    emitterly.stop()
+
+    // TODO: verify
+  })
+
+  it('Trigger new line event in file, 2 matched grok filter (should merge)', async () => {
+    const newSettings = defaultSettings
+    newSettings.events.newlineevent.filters.filter2 = `\\[%{TIME:time}\\] %{IP:ip} \\(%{WORD:type}\\) - %{GREEDYDATA:message2}`
+    emitterly = await new Emitterly(null, newSettings)
+    await emitterly.tailLine('[12:08:44] 192.168.2.1 (INFO) - User logged in', path.join(__dirname, 'text.txt'))
+    emitterly.stop()
+
+    // TODO: verify
+  })
+
+  it('Trigger new line event file: unmatched grok filter', async () => {
+    emitterly = await new Emitterly(null, defaultSettings)
+    await emitterly.tailLine('test', path.join(__dirname, 'text.txt'))
+    emitterly.stop()
+
+    // TODO: verify
+  })
+
+  it('Load Emitterly without a settings yml should error', async () => {
+    assert.rejects(async () => {
+      emitterly = await new Emitterly('thisdoesnotexist.yml')
     })
   })
 
-  after(function() {
-    try {
-      fs.unlinkSync(path.join(__dirname, 'settings.yml'))
-      fs.unlinkSync(path.join(__dirname, 'test.txt'))
-    } catch (e) {}
+  it('Load Emitterly with a settings yml', async () => {
+    emitterly = await new Emitterly(path.join(__dirname, 'settings.yml'))
+    emitterly.stop()
 
-    emitterly.quit()
+    // TODO: verify
   })
 
-  it('Load the Emitterly class', () => {
-    emitterly = new Emitterly(path.join(__dirname, 'settings.yml'))
+  it('Load Emitterly without events', async () => {
+    emitterly = await new Emitterly(null, {})
+
+    // TODO: verify
+  })
+
+  it('Try to listen to a directory', async () => {
+    const newSettings = defaultSettings
+    newSettings.events.newlineevent.file = `./`
+    assert.rejects(async () => {
+      emitterly = await new Emitterly(null, newSettings)
+    })
+  })
+
+  it('Try to listen to a non existing file', async () => {
+    const newSettings = defaultSettings
+    newSettings.events.newlineevent.file = `./yeet.txt`
+    assert.rejects(async () => {
+      emitterly = await new Emitterly(null, newSettings)
+    })
   })
 
   it('Trigger new line event', done => {
-    fs.writeFile(path.join(__dirname, 'test.txt'), '[12:08:44] 192.168.2.1 (INFO) - User logged in\n', function(err) {
-      if (err) throw err
+    // This is friggin ugly lol
+    ;(async () => {
+      emitterly = await new Emitterly(path.join(__dirname, 'settings.yml'))
+      fs.writeFile(path.join(__dirname, 'text.txt'), '[12:08:44] 192.168.2.1 (INFO) - User logged in\n', function(err) {
+        if (err) throw err
 
-      emitterly.tails[0].on('line', () => {
-        emitterly.tails[0].removeAllListeners()
-        assert.equal(emitterly.lastline, '[12:08:44] 192.168.2.1 (INFO) - User logged in')
-        done()
+        this.timeouter = setInterval(() => {
+          if (_.get(emitterly, 'lastline')) {
+            assert.equal(emitterly.lastline, '[12:08:44] 192.168.2.1 (INFO) - User logged in')
+
+            if (_.get(emitterly, 'lastwebhookStatus')) {
+              emitterly.stop()
+              clearInterval(this.timeouter)
+              done()
+            }
+          }
+        }, 10)
       })
-    })
-  })
-
-  it('Correct grok filtering', done => {
-    fs.writeFile(path.join(__dirname, 'test.txt'), '[12:08:44] 192.168.2.1 (INFO) - User logged in\n', function(err) {
-      if (err) throw err
-
-      assert.deepEqual(emitterly.lastmatch, { time: '12:08:44', ip: '192.168.2.1', type: 'INFO', message: 'User logged in' })
-      done()
-    })
-  })
-
-  it('Correct payload translation', done => {
-    fs.writeFile(path.join(__dirname, 'test.txt'), '[12:08:44] 192.168.2.1 (INFO) - User logged in\n', function(err) {
-      if (err) throw err
-
-      assert.deepEqual(emitterly.lastpayload, { data: '192.168.2.1 newlineevent 1 === 1 customstring' })
-      done()
-    })
+    })()
   })
 })
