@@ -6,5 +6,7 @@
 "mocha": true,
 "jquery": true,
 "browser": true,
-"evil": true
+"evil": true,
+"unused": true,
+"varstmt": true
 }
