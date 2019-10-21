@@ -1,9 +1,9 @@
 language: node_js
 dist: trusty
 node_js:
-  - '11.0.0'
+  - '12.0.0'
 after_script: npm run coveralls:export
 before_install:
   - nvm install stable
   - nvm use stable
-install: nvm use 11 && npm install
+install: nvm use 12 && npm install

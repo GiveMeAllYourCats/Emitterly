@@ -13,7 +13,7 @@
 [![Help us and star this project](https://img.shields.io/github/stars/michaeldegroot/emitterly.svg?style=social)](https://github.com/michaeldegroot/Emitterly)
 
 A CLI program to listen to file changes in the filesystem and/or internet and execute certain defined actions on a triggered condition<br>
-```Emitterly``` Uses grok filters to extract key/pair values from new line events to make your payloads more intelligent. This is explained in detail below.
+`Emitterly` Uses grok filters to extract key/pair values from new line events to make your payloads more intelligent. This is explained in detail below.
 
 ## Installation
 
@@ -23,24 +23,26 @@ npm install emitterly --global
 
 ## Usage
 
-Type ```emitterly``` or ```emitterly -c "path/to/settings.yml"``` to run the tool.
+Type `emitterly` or `emitterly -c "path/to/settings.yml"` to run the tool.
 
-```Emitterly``` will try to load a ```settings.yml``` file in the folder you executed the command in
+`Emitterly` will try to load a `settings.yml` file in the folder you executed the command in
 
 #### Command-Line Arguments
 
-| Argument | Explanation |
-| -------- | ----------- |
-| ```-c``` | Specifies the file path to the settings.yml |
+| Argument | Explanation                                 |
+| -------- | ------------------------------------------- |
+| `-h`     | Shows help                                  |
+| `-c`     | Specifies the file path to the settings.yml |
 
 #### Settings
+
 ```yaml
 events:
   newlineevent: # This is a event name, you can have multiple events
     file: './test.txt' # The file to watch, you can also use URL's
-    
+
     # You can have multiple filters
-    filters: # Filters are GROK patterns 
+    filters: # Filters are GROK patterns
       # this filter called filter1 will match for example: [12:08:44] 192.168.2.1 (INFO) - User logged in
       filter1: '\[%{TIME:time}\] %{IP:ip} \(%{WORD:type}\) - %{GREEDYDATA:message}'
 
@@ -60,17 +62,20 @@ events:
 ```
 
 #### Grok
-[grok](https://github.com/elastic/logstash/blob/v1.4.2/patterns/grok-patterns) is a way to match a line against a regular expression and map specific parts of the line into dedicated fields. 
 
-For example consider the following new added line to a file that you are monitoring with ```Emitterly```:
+[grok](https://github.com/elastic/logstash/blob/v1.4.2/patterns/grok-patterns) is a way to match a line against a regular expression and map specific parts of the line into dedicated fields.
+
+For example consider the following new added line to a file that you are monitoring with `Emitterly`:
+
 ```
 [12:08:44] 192.168.2.1 (INFO) - User logged in
 ```
 
-You could transform this information to a payload object within ```Emitterly``` by specifying a grok match pattern in your ```settings.yml``` file inside the filters of a event:
+You could transform this information to a payload object within `Emitterly` by specifying a grok match pattern in your `settings.yml` file inside the filters of a event:
+
 ```yaml
-    filters:
-      filter1: '\[%{TIME:time}\] %{IP:ip} \(%{WORD:type}\) - %{GREEDYDATA:message}'
+filters:
+  filter1: '\[%{TIME:time}\] %{IP:ip} \(%{WORD:type}\) - %{GREEDYDATA:message}'
 ```
 
 Which will result in the following object:
@@ -84,9 +89,10 @@ Which will result in the following object:
 }
 ```
 
-You can then use this to send as a payload or to use it in your condition line in ```settings.yml```
-```yaml 
-    condition: '"%match.ip%" == "192.168.2.1"'
+You can then use this to send as a payload or to use it in your condition line in `settings.yml`
+
+```yaml
+condition: '"%match.ip%" == "192.168.2.1"'
 ```
 
 So now your payload will only be sent to your action if this condition matches
