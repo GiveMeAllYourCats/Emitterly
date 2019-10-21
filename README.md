@@ -27,6 +27,8 @@ Type `emitterly` or `emitterly -c "path/to/settings.yml"` to run the tool.
 
 `Emitterly` will try to load a `settings.yml` file in the folder you executed the command in
 
+You can run ```emitterly``` with ```DEBUG=emitterly:* emitterly``` to view debug messages
+
 #### Command-Line Arguments
 
 | Argument | Explanation                                 |
@@ -57,7 +59,7 @@ events:
 
     # The payload to send with the actions
     payload:
-      ip: '%match.ip'
+      ip: '%match.ip%'
       data: 'Emitterly sent a payload! event: %event% condition = %condition% here is a customstring'
 ```
 
@@ -100,4 +102,4 @@ So now your payload will only be sent to your action if this condition matches
 ## License
 
 Copyright (c) 2019 by [GiveMeAllYourCats](https://github.com/michaeldegroot). Some rights reserved.<br>
-[Evil Limiter](https://github.com/michaeldegroot/emitterly) is licensed under the MIT License as stated in the [LICENSE file](https://github.com/michaeldegroot/Emitterly/blob/master/LICENSE).
+[Emitterly](https://github.com/michaeldegroot/emitterly) is licensed under the MIT License as stated in the [LICENSE file](https://github.com/michaeldegroot/Emitterly/blob/master/LICENSE).
