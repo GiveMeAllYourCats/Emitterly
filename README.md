@@ -27,14 +27,21 @@ Type `emitterly` or `emitterly -c "path/to/settings.yml"` to run the tool.
 
 `Emitterly` will try to load a `settings.yml` file in the folder you executed the command in
 
-You can run ```emitterly``` with ```DEBUG=emitterly:* emitterly``` to view debug messages
+You can run `emitterly` with `DEBUG=emitterly:* emitterly` to view debug messages
 
 #### Command-Line Arguments
 
-| Argument | Explanation                                 |
-| -------- | ------------------------------------------- |
-| `-h`     | Shows help                                  |
-| `-c`     | Specifies the file path to the settings.yml |
+| Argument         | Explanation                                   | Default          |
+| ---------------- | --------------------------------------------- | ---------------- |
+| `-h`             | Shows help                                    |                  |
+| `-c <file>`      | Specifies the file path to the settings.yml   | `./settings.yml` |
+| `-e <encoding>`  | Sets the encoding of event files              | `utf-8`          |
+| `-s <separator>` | Sets the line separator token                 | `/[\r]{0,1}\n/`  |
+| `-u`             | Runs eval for conditions instead of safe-eval |                  |
+| `-b`             | Reads event files from the beginning          |                  |
+| `-f`             | Forces flush of data when EOF is reached.     |                  |
+| `-p`             | Prints pretty errors when thrown              |                  |
+| `-w`             | Uses a webworker per event                    |                  |
 
 #### Settings
 
