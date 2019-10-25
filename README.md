@@ -41,7 +41,6 @@ You can run `emitterly` with `DEBUG=emitterly:* emitterly` to view debug message
 | `-b`             | Reads event files from the beginning          |                  |
 | `-f`             | Forces flush of data when EOF is reached.     |                  |
 | `-p`             | Prints pretty errors when thrown              |                  |
-| `-w`             | Uses a webworker per event                    |                  |
 
 #### Settings
 

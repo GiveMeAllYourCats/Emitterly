@@ -11,10 +11,7 @@ const filter = require('../modules/filter')
 // If for some reason the program exits, clean up the tmp folder
 tmp.setGracefulCleanup()
 
-const debug = {
-  log: require('debug')('emitterly:tail:log'),
-  warn: require('debug')('emitterly:tail:warn')
-}
+const debug = require('../modules/debug')('tail')
 
 class Tail {
   constructor(settings, event, eventName) {
@@ -91,7 +88,7 @@ class Tail {
     debug.log(path.basename(this.event.file), line)
 
     // Formulate match object for event object with grok matching filters
-    this.event.match = this.filter.grok(this.event.filters, line)
+    this.event.match = filter.grok(this.event.filters, line)
 
     // Ignore if no matches
     if (Object.keys(this.event.match).length === 0) {
@@ -104,7 +101,7 @@ class Tail {
     // Evaluate the events condition
     let condition = true
     if (this.event.condition) {
-      condition = this.filter.contextVars(this.event.condition, this.event)
+      condition = filter.contextVars(this.event.condition, this.event)
     }
 
     try {
@@ -120,7 +117,7 @@ class Tail {
 
     // Translate event custom payload
     _.each(this.event.payload, (payload, key) => {
-      this.event.payload[key] = this.filter.contextVars(payload, this.event)
+      this.event.payload[key] = filter.contextVars(payload, this.event)
     })
 
     debug.log('Payload set to', this.event.payload)
@@ -130,7 +127,9 @@ class Tail {
       debug.log('Triggering action type', type)
 
       // Webhook action
-      if (type == 'webhook') {
+      if (type == 'eval') {
+        debug.log('eval code:', data, this.event.payload)
+      } else if (type == 'webhook') {
         debug.log('HTTP post:', data, this.event.payload)
         axios
           .post(data, this.event.payload)

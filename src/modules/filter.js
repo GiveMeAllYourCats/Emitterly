@@ -2,10 +2,7 @@ const _ = require('lodash')
 const grok = require('grok-js')
 const filter = {}
 
-const debug = {
-  log: require('debug')('emitterly:filter:log'),
-  warn: require('debug')('emitterly:filter:warn')
-}
+const debug = require('../modules/debug')('filter')
 
 // Translates a line of a watched file to a parsed object via supplied grok filters
 // If there are results found on multiple filters, the new keys will be merged in the already parsed object

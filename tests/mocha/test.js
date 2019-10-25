@@ -6,11 +6,14 @@ const touch = require('touch')
 const yaml = require('js-yaml')
 const _ = require('lodash')
 
+const textFile = path.join(__dirname, 'text.txt')
+const settingsFile = path.join(__dirname, 'settings.yml')
+
 let emitterly
 const defaultSettings = {
   events: {
     newlineevent: {
-      file: path.join(__dirname, 'text.txt'),
+      file: textFile,
       filters: {
         filter1: `\\[%{TIME:time}\\] %{IP:ip} \\(%{WORD:type}\\) - %{GREEDYDATA:message}`
       },
@@ -25,18 +28,41 @@ const defaultSettings = {
   }
 }
 
-describe('Emitterly', function() {
-  before(() => {
-    touch.sync(path.join(__dirname, 'text.txt'))
-    touch.sync(path.join(__dirname, 'settings.yml'))
-    fs.writeFileSync(path.join(__dirname, 'settings.yml'), yaml.safeDump(defaultSettings))
+describe('Emitterly event file', function() {
+  before(done => {
+    touch.sync(textFile)
+    touch.sync(settingsFile)
+    fs.writeFileSync(settingsFile, yaml.safeDump(defaultSettings))
+    setTimeout(() => {
+      done()
+    }, 500)
   })
   after(() => {
-    fs.unlinkSync(path.join(__dirname, 'text.txt'))
-    fs.unlinkSync(path.join(__dirname, 'settings.yml'))
+    emitterly.stop()
+    setTimeout(() => {
+      fs.unlinkSync(textFile)
+      fs.unlinkSync(settingsFile)
+    }, 500)
   })
 
-  it('yeet', () => {
-    console.log('yeet')
+  it('Trigger new line event in file', done => {
+    emitterly = new Emitterly({
+      config: settingsFile,
+      encoding: 'utf-8',
+      separator: /[\r]{0,1}\n/,
+      unsafe: false,
+      beginning: false,
+      flush: false
+    })
+    setTimeout(() => {
+      fs.writeFileSync(textFile, '[12:08:44] 192.168.2.1 (INFO) - User logged in\r\n')
+      setTimeout(() => {
+        fs.writeFileSync(textFile, '[12:08:44] 192.168.2.1 (INFO) - User logged in\r\n')
+        setTimeout(() => {
+          fs.writeFileSync(textFile, '[12:08:44] 192.168.2.1 (INFO) - User logged in\r\n')
+          done()
+        }, 500)
+      }, 500)
+    }, 500)
   })
 })

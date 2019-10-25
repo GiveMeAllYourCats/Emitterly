@@ -3,12 +3,8 @@ const path = require('path')
 const yaml = require('js-yaml')
 const fs = require('fs')
 const Tail = require('./src/classes/tail')
-const Worker = require('./src/classes/worker')
 
-const debug = {
-  log: require('debug')('emitterly:main:log'),
-  warn: require('debug')('emitterly:main:warn')
-}
+const debug = require('./src/modules/debug')('main')
 
 class Emitterly {
   constructor(init) {
@@ -21,11 +17,7 @@ class Emitterly {
     this.tails = []
     this.workers = []
     _.each(this.settings.config.events, (event, eventName) => {
-      if (this.settings.webworker) {
-        this.workers.push(new Worker('tail', { settings: this.settings, event, eventName }))
-      } else {
-        this.tails.push(new Tail(this.settings, event, eventName))
-      }
+      this.tails.push(new Tail(this.settings, event, eventName))
     })
   }
 

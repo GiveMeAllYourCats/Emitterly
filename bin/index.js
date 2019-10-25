@@ -9,7 +9,6 @@ program.option('-u, --unsafe', 'Runs eval for conditions instead of safe-eval', 
 program.option('-b, --beginning', 'Reads event files from the beginning', false)
 program.option('-f, --flush', 'Forces flush of data when EOF is reached.', false)
 program.option('-p, --pretty', 'Prints pretty errors when thrown', false)
-program.option('-w, --webworker', 'Uses a webworker per event', false)
 
 program.parse(process.argv)
 
@@ -24,6 +23,5 @@ new Emitterly({
   separator: program.separator,
   unsafe: program.unsafe,
   beginning: program.beginning,
-  flush: program.flush,
-  webworker: program.webworker
+  flush: program.flush
 })
