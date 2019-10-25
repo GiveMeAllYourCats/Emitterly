@@ -31,16 +31,16 @@ You can run `emitterly` with `DEBUG=emitterly:* emitterly` to view debug message
 
 #### Command-Line Arguments
 
-| Argument         | Explanation                                   | Default          |
-| ---------------- | --------------------------------------------- | ---------------- |
-| `-h`             | Shows help                                    |                  |
-| `-c <file>`      | Specifies the file path to the settings.yml   | `./settings.yml` |
-| `-e <encoding>`  | Sets the encoding of event files              | `utf-8`          |
-| `-s <separator>` | Sets the line separator token                 | `/[\r]{0,1}\n/`  |
-| `-u`             | Runs eval for conditions instead of safe-eval |                  |
-| `-b`             | Reads event files from the beginning          |                  |
-| `-f`             | Forces flush of data when EOF is reached.     |                  |
-| `-p`             | Prints pretty errors when thrown              |                  |
+| Argument         | Explanation                                               | Default          |
+| ---------------- | --------------------------------------------------------- | ---------------- |
+| `-h`             | Shows help                                                |                  |
+| `-c <file>`      | Specifies the file path to the settings.yml               | `./settings.yml` |
+| `-e <encoding>`  | Sets the encoding of event files                          | `utf-8`          |
+| `-s <separator>` | Sets the line separator token                             | `/[\r]{0,1}\n/`  |
+| `-u`             | Runs eval for conditions and actions instead of safe-eval | `false`          |
+| `-b`             | Reads event files from the beginning                      | `false`          |
+| `-f`             | Forces flush of data when EOF is reached.                 | `false`          |
+| `-p`             | Prints pretty errors when thrown                          | `false`          |
 
 #### Settings
 
@@ -59,11 +59,17 @@ events:
       # A webhook action only needs a url to post to, it will post in JSON format
       webhook: 'https://webhook.site/04ed7a87-f9e5-472d-8f66-fc50f83b0a67'
 
+      # Executes a command, can be virtually anything
+      exec: 'node ./trigger.js'
+
+      # You can eval javascript, this is by default safe-eval instead of eval
+      eval: 'console.log("This is a console log from a action trigger")'
+
     # The condition for the actions to be triggered in this event, you can use variables from the event class itself
     # For example: '"%match.ip%" == "192.168.2.1"'
     condition: '1 === 1'
 
-    # The payload to send with the actions
+    # The payload to send with the actions, this currently only works for the webhook action
     payload:
       ip: '%match.ip%'
       data: 'Emitterly sent a payload! event: %event% condition = %condition% here is a customstring'

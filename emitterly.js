@@ -1,10 +1,8 @@
 const _ = require('lodash')
-const path = require('path')
 const yaml = require('js-yaml')
 const fs = require('fs')
-const Tail = require('./src/classes/tail')
-
 const debug = require('./src/modules/debug')('main')
+const Event = require('./src/classes/event')
 
 class Emitterly {
   constructor(init) {
@@ -14,10 +12,10 @@ class Emitterly {
 
   start() {
     // Begin tailing events files and/or URLs
-    this.tails = []
+    this.events = []
     this.workers = []
     _.each(this.settings.config.events, (event, eventName) => {
-      this.tails.push(new Tail(this.settings, event, eventName))
+      this.events.push(new Event(this.settings, event, eventName))
     })
   }
 
@@ -47,13 +45,8 @@ class Emitterly {
     debug.log('Requesting stop..')
 
     // Make sure to stop all tailed files
-    _.each(this.tails, tailClass => {
-      tailClass.stop()
-    })
-
-    // Make sure to stop all workers
-    _.each(this.workers, workerClass => {
-      workerClass.send('stop')
+    _.each(this.events, eventClass => {
+      eventClass.stop()
     })
 
     debug.log('Goodbye!')
